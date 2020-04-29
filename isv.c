@@ -108,16 +108,26 @@ void
 show_services(int nservices)
 {
     int i;
-    char uptime_str[8];
+    char uptime_str[9];
 
     printf("%*s active   run   log  uptime\n", name_col_width, "name");
     for (i = 0; i < nservices; i++) {
-        sprint_uptime(uptime_str, services[i].uptime);
-        printf("%*s %6s %5d %5d %s\n",
-               name_col_width, services[i].name,
-               services[i].active ? "yes" : "no",
-               services[i].pid, services[i].log_pid,
-               uptime_str);
+        printf("%*s ", name_col_width, services[i].name);
+        printf("%6s ", services[i].active ? "yes" : "no");
+        if (services[i].pid)
+            printf("%5d ", services[i].pid);
+        else
+            printf("%5s ", "---");
+        if (services[i].log_pid)
+            printf("%5d ", services[i].log_pid);
+        else
+            printf("%5s ", "---");
+        if (services[i].pid) {
+            sprint_uptime(uptime_str, services[i].uptime);
+            printf("%s\n", uptime_str);
+        } else {
+            printf("%7s\n", "---");
+        }
     }
 }
 
