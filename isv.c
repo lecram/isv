@@ -145,8 +145,8 @@ main(int argc, char *argv[])
     struct termios term_prev, term_raw;
     char byte;
 
-    if (!isatty(0))
-        return 1;   /* quit if stdin is not a terminal */
+    if (!isatty(1))
+        return 1;   /* quit if stdout is not a terminal */
     if (argc == 2)
         base_dir = argv[1];
     else
