@@ -23,7 +23,6 @@ static struct service {
     char name[MAX_NAME];
 } services[MAX_SERV];
 
-static char path[4096];
 static int name_col_width;
 
 int32_t
@@ -80,27 +79,19 @@ load_services(const char *base_dir, int nservices)
     struct stat st;
 
     for (i = 0; i < nservices; i++) {
-        strcpy(path, base_dir);
-        strcat(path, "/");
-        strcat(path, services[i].name);
-        strcat(path, "/supervise/status");
-        fd = open(path, O_RDONLY);
+        chdir(base_dir);
+        chdir(services[i].name);
+        fd = open("supervise/status", O_RDONLY);
         read(fd, stt, sizeof stt);
         close(fd);
         services[i].pid = read_lei32(&stt[12]);
         when = read_beu64(&stt[0]);
         services[i].uptime = time(NULL) + 4611686018427387914ULL - when;
-        strcpy(path, base_dir);
-        strcat(path, "/");
-        strcat(path, services[i].name);
-        strcat(path, "/log/supervise/status");
-        fd = open(path, O_RDONLY);
+        fd = open("log/supervise/status", O_RDONLY);
         read(fd, stt, sizeof stt);
         close(fd);
         services[i].log_pid = read_lei32(&stt[12]);
-        strcpy(path, base_dir);
-        strcat(path, "down");
-        services[i].active = !!stat(path, &st);
+        services[i].active = !!stat("down", &st);
     }
 }
 
