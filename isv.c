@@ -50,24 +50,6 @@ read_beu64(unsigned char *buf)
 }
 
 void
-format_uptime(unsigned long *value, char *suffix)
-{
-    *suffix = 's';
-    if (*value >= 60) {
-        *value /= 60;
-        *suffix = 'm';
-    }
-    if (*value >= 60) {
-        *value /= 60;
-        *suffix = 'h';
-    }
-    if (*value >= 24) {
-        *value /= 24;
-        *suffix = 'd';
-    }
-}
-
-void
 load_services(const char *base_dir, int nservices)
 {
     int i, fd;
@@ -93,32 +75,62 @@ load_services(const char *base_dir, int nservices)
 }
 
 void
-show_services(int nservices)
+show_header()
 {
-    int i;
+    printf("%*s active   run   log  uptime\n", name_col_width, "name");
+}
+
+
+void
+format_uptime(unsigned long *value, char *suffix)
+{
+    *suffix = 's';
+    if (*value >= 60) {
+        *value /= 60;
+        *suffix = 'm';
+    }
+    if (*value >= 60) {
+        *value /= 60;
+        *suffix = 'h';
+    }
+    if (*value >= 24) {
+        *value /= 24;
+        *suffix = 'd';
+    }
+}
+void
+show_service(struct service *service)
+{
     unsigned long value;
     char suffix;
 
-    printf("%*s active   run   log  uptime\n", name_col_width, "name");
-    for (i = 0; i < nservices; i++) {
-        printf("%*s ", name_col_width, services[i].name);
-        printf("%6s ", services[i].active ? "yes" : "no");
-        if (services[i].pid)
-            printf("%5d ", services[i].pid);
-        else
-            printf("%5s ", "---");
-        if (services[i].log_pid)
-            printf("%5d ", services[i].log_pid);
-        else
-            printf("%5s ", "---");
-        if (services[i].pid) {
-            value = services[i].uptime;
-            format_uptime(&value, &suffix);
-            printf("%5lu %c\n", value, suffix);
-        } else {
-            printf("%7s\n", "---");
-        }
+    printf("%*s ", name_col_width, service->name);
+    printf("%6s ", service->active ? "yes" : "no");
+    if (service->pid)
+        printf("%5d ", service->pid);
+    else
+        printf("%5s ", "---");
+    if (service->log_pid)
+        printf("%5d ", service->log_pid);
+    else
+        printf("%5s ", "---");
+    if (service->pid) {
+        value = service->uptime;
+        format_uptime(&value, &suffix);
+        printf("%5lu %c\n", value, suffix);
+    } else {
+        printf("%7s\n", "---");
     }
+}
+
+void
+show_services(int nservices)
+{
+    int i;
+
+    show_header();
+    for (i = 0; i < nservices; i++)
+        show_service(&services[i]);
 }
 
 int
