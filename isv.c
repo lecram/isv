@@ -49,25 +49,22 @@ read_beu64(unsigned char *buf)
     return n;
 }
 
-int
-sprint_uptime(char buf[9], unsigned long seconds)
+void
+format_uptime(unsigned long *value, char *suffix)
 {
-    char suffix = 's';
-    unsigned long value = seconds;
-
-    if (value >= 60) {
-        value /= 60;
-        suffix = 'm';
+    *suffix = 's';
+    if (*value >= 60) {
+        *value /= 60;
+        *suffix = 'm';
     }
-    if (value >= 60) {
-        value /= 60;
-        suffix = 'h';
+    if (*value >= 60) {
+        *value /= 60;
+        *suffix = 'h';
     }
-    if (value >= 24) {
-        value /= 24;
-        suffix = 'd';
+    if (*value >= 24) {
+        *value /= 24;
+        *suffix = 'd';
     }
-    return snprintf(buf, 9, "%5lu %c", value, suffix);
 }
 
 void
@@ -99,7 +96,8 @@ void
 show_services(int nservices)
 {
     int i;
-    char uptime_str[9];
+    unsigned long value;
+    char suffix;
 
     printf("%*s active   run   log  uptime\n", name_col_width, "name");
     for (i = 0; i < nservices; i++) {
@@ -114,8 +112,9 @@ show_services(int nservices)
         else
             printf("%5s ", "---");
         if (services[i].pid) {
-            sprint_uptime(uptime_str, services[i].uptime);
-            printf("%s\n", uptime_str);
+            value = services[i].uptime;
+            format_uptime(&value, &suffix);
+            printf("%5lu %c\n", value, suffix);
         } else {
             printf("%7s\n", "---");
         }
