@@ -80,7 +80,6 @@ show_header()
     printf("%*s active   run   log  uptime\n", name_col_width, "name");
 }
 
-
 void
 format_uptime(unsigned long *value, char *suffix)
 {
@@ -98,6 +97,7 @@ format_uptime(unsigned long *value, char *suffix)
         *suffix = 'd';
     }
 }
+
 void
 show_service(struct service *service)
 {
