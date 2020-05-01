@@ -102,7 +102,7 @@ load_services(const char *base_dir, int nservices)
 void
 init_screen(int nservices)
 {
-    printf("%-*s active  main   log uptime\n", name_col_width, "name");
+    printf(" %-*s active  main   log uptime\n", name_col_width, "name");
     while (nservices--) printf("\n");
 }
 
@@ -125,12 +125,15 @@ format_uptime(unsigned long *value, char *suffix)
 }
 
 void
-show_service(struct service *service)
+show_service(struct service *service, bool selected)
 {
     unsigned long value;
     char suffix;
+    char lsel, rsel;
 
-    printf("%-*s ", name_col_width, service->name);
+    lsel = selected ? '<' : ' ';
+    rsel = selected ? '>' : ' ';
+    printf("%c%-*s ", lsel, name_col_width, service->name);
     printf("%-6s ", service->active ? "yes" : "no");
     if (service->pid)
         printf("%5d ", service->pid);
@@ -143,20 +146,21 @@ show_service(struct service *service)
     if (service->pid) {
         value = service->uptime;
         format_uptime(&value, &suffix);
-        printf("%4lu %c\n", value, suffix);
+        printf("%4lu %c", value, suffix);
     } else {
-        printf("%7s\n", "---");
+        printf("%7s", "---");
     }
+    printf("%c\n", rsel);
 }
 
 void
-show_services(int nservices)
+show_services(int nservices, int selection)
 {
     int i;
 
     printf("\x1B[%dA", nservices);
     for (i = 0; i < nservices; i++)
-        show_service(&services[i]);
+        show_service(&services[i], selection == i);
 }
 
 int
@@ -165,12 +169,12 @@ main(int argc, char *argv[])
     DIR *dir;
     const char *base_dir = NULL;
     struct dirent *entry;
-    int nservices;
+    int nservices, selection;
     int name_size;
     struct winsize term_size;
     struct termios term_prev;
     char byte;
-    int running;
+    bool running, got_cmd;
     int i;
 
     if (!isatty(1))
@@ -211,16 +215,28 @@ main(int argc, char *argv[])
     qsort(services, nservices, sizeof *services, cmp_name);
     setup_terminal(&term_prev);
     init_screen(nservices);
-    running = 1;
+    selection = -1; /* select all services */
+    running = true;
     while (running) {
         load_services(base_dir, nservices);
-        show_services(nservices);
+        show_services(nservices, selection);
         for (i = 0; i < 30; i++) {
             if (read(0, &byte, 1) == 1) {
-                if (byte == 'q') {
-                    running = 0;
+                got_cmd = true;
+                switch (byte) {
+                case 'q':
+                    running = false;
                     break;
+                case 'j':
+                    selection = (selection + 2) % (nservices + 1) - 1;
+                    break;
+                case 'k':
+                    selection = (selection + nservices + 1) % (nservices + 1) - 1;
+                    break;
+                default:
+                    got_cmd = false;
                 }
+                if (got_cmd) break;
             }
         }
     }
