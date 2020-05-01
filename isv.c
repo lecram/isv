@@ -244,7 +244,7 @@ main(int argc, char *argv[])
     qsort(services, nservices, sizeof *services, cmp_name);
     setup_terminal(&term_prev);
     init_screen(nservices);
-    selection = -1; /* select all services */
+    selection = -1; /* no service selected */
     running = true;
     while (running) {
         load_services(base_dir, nservices);
