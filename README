@@ -32,6 +32,7 @@ Interaction
     ---       ------
     q         Quit isv
     j/k       Move selection cursor down/up
+    1/2       Send USR1/USR2 signal to service
     <UPPER>   Send command to selected service (e.g. 'U' -> 'up')
 
 That is,  to control a  service, we  first move the  cursor (<>) using  j/k to

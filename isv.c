@@ -266,6 +266,9 @@ main(int argc, char *argv[])
                 case 'k':
                     selection = (selection + nservices + 1) % (nservices + 1) - 1;
                     break;
+                case '1': case '2': /* non-alphabetic cmds can't be uppercase */
+                    send_command(base_dir, nservices, selection, byte);
+                    break;
                 default:
                     got_cmd = false;
                 }
