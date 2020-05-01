@@ -247,12 +247,11 @@ main(int argc, char *argv[])
     while (running) {
         load_services(base_dir, nservices);
         show_services(nservices, selection);
-        for (i = 0; i < 30; i++) {
+        for (i = 0; i < 10; i++) {
             if (read(0, &byte, 1) == 1) {
                 if (isupper(byte)) {
                     send_command(base_dir, nservices, selection, tolower(byte));
-                    i = 20; /* give a second for command to process */
-                    continue;
+                    break;
                 }
                 got_cmd = true;
                 switch (byte) {
