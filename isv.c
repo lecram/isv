@@ -94,9 +94,11 @@ load_services(const char *base_dir, int nservices)
 }
 
 void
-show_header()
+init_screen(int nservices)
 {
+    printf("\x1B[%dL", nservices);
     printf("%*s active   run   log  uptime\n", name_col_width, "name");
+    printf("\x1B[%dB", nservices);
 }
 
 void
@@ -147,7 +149,7 @@ show_services(int nservices)
 {
     int i;
 
-    show_header();
+    printf("\x1B[%dA", nservices);
     for (i = 0; i < nservices; i++)
         show_service(&services[i]);
 }
@@ -163,6 +165,8 @@ main(int argc, char *argv[])
     struct winsize term_size;
     struct termios term_prev;
     char byte;
+    int running;
+    int i;
 
     if (!isatty(1))
         return 1;   /* quit if stdout is not a terminal */
@@ -200,12 +204,18 @@ main(int argc, char *argv[])
         return 1;
     }
     setup_terminal(&term_prev);
-    load_services(base_dir, nservices);
-    show_services(nservices);
-    while (1) {
-        if (read(0, &byte, 1) == 1) {
-            if (byte == 'q')
-                break;
+    init_screen(nservices);
+    running = 1;
+    while (running) {
+        load_services(base_dir, nservices);
+        show_services(nservices);
+        for (i = 0; i < 30; i++) {
+            if (read(0, &byte, 1) == 1) {
+                if (byte == 'q') {
+                    running = 0;
+                    break;
+                }
+            }
         }
     }
     restore_terminal(&term_prev);
