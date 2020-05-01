@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -163,6 +164,23 @@ show_services(int nservices, int selection)
         show_service(&services[i], selection == i);
 }
 
+void
+send_command(const char *base_dir, int nservices, int selection, char cmd)
+{
+    struct service *service;
+    int fd;
+
+    (void) nservices;
+    if (selection == -1)
+        return;
+    service = &services[selection];
+    chdir(base_dir);
+    chdir(service->name);
+    fd = open("supervise/control", O_WRONLY);
+    write(fd, &cmd, 1);
+    close(fd);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -222,6 +240,11 @@ main(int argc, char *argv[])
         show_services(nservices, selection);
         for (i = 0; i < 30; i++) {
             if (read(0, &byte, 1) == 1) {
+                if (isupper(byte)) {
+                    send_command(base_dir, nservices, selection, tolower(byte));
+                    i = 20; /* give a second for command to process */
+                    continue;
+                }
                 got_cmd = true;
                 switch (byte) {
                 case 'q':
