@@ -184,6 +184,23 @@ send_command(const char *base_dir, int nservices, int selection, char cmd)
     close(fd);
 }
 
+void
+toggle_service(const char *base_dir, int nservices, int selection)
+{
+    struct service *service;
+
+    (void) nservices;
+    if (selection == -1)
+        return;
+    service = &services[selection];
+    chdir(base_dir);
+    chdir(service->name);
+    if (service->active)
+        creat("down", 0644);
+    else
+        unlink("down");
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -268,6 +285,9 @@ main(int argc, char *argv[])
                     break;
                 case '1': case '2': /* non-alphabetic cmds can't be uppercase */
                     send_command(base_dir, nservices, selection, byte);
+                    break;
+                case ' ':
+                    toggle_service(base_dir, nservices, selection);
                     break;
                 default:
                     got_cmd = false;
