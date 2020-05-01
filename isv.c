@@ -149,7 +149,7 @@ show_service(struct service *service, bool selected)
         format_uptime(&value, &suffix);
         printf("%4lu %c", value, suffix);
     } else {
-        printf("%7s", "---");
+        printf("%6s", "---");
     }
     printf("%c\n", rsel);
 }
