@@ -96,9 +96,8 @@ load_services(const char *base_dir, int nservices)
 void
 init_screen(int nservices)
 {
-    printf("\x1B[%dL", nservices);
     printf("%*s active   run   log  uptime\n", name_col_width, "name");
-    printf("\x1B[%dB", nservices);
+    while (nservices--) printf("\n");
 }
 
 void
