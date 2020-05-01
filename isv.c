@@ -92,10 +92,13 @@ load_services(const char *base_dir, int nservices)
         services[i].pid = read_lei32(&stt[12]);
         when = read_beu64(&stt[0]);
         services[i].uptime = time(NULL) + 4611686018427387914ULL - when;
-        fd = open("log/supervise/status", O_RDONLY);
-        read(fd, stt, sizeof stt);
-        close(fd);
-        services[i].log_pid = read_lei32(&stt[12]);
+        if ((fd = open("log/supervise/status", O_RDONLY)) < 0) {
+            services[i].log_pid = 0;
+        } else {
+            read(fd, stt, sizeof stt);
+            close(fd);
+            services[i].log_pid = read_lei32(&stt[12]);
+        }
         services[i].active = !!stat("down", &st);
     }
 }
