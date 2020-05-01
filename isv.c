@@ -214,9 +214,9 @@ main(int argc, char *argv[])
         if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
         chdir(base_dir);
-        if (chdir(entry->d_name) == -1)
+        if (chdir(entry->d_name) < 0)
             continue;
-        if (stat("run", &st) == -1)
+        if (stat("supervise/ok", &st) < 0)
             continue;
         strncpy(services[nservices].name, entry->d_name, MAX_NAME-1);
         name_size = strlen(entry->d_name);
@@ -228,7 +228,7 @@ main(int argc, char *argv[])
     }
     closedir(dir);
     if (nservices == 0) {
-        fprintf(stderr, "no services in '%s'\n", base_dir);
+        fprintf(stderr, "no services to supervise in '%s'\n", base_dir);
         return 1;
     }
     ioctl(0, TIOCGWINSZ, &term_size);
