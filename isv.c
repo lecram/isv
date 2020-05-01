@@ -187,6 +187,7 @@ main(int argc, char *argv[])
     DIR *dir;
     const char *base_dir = NULL;
     struct dirent *entry;
+    struct stat st;
     int nservices, selection;
     int name_size;
     struct winsize term_size;
@@ -211,6 +212,11 @@ main(int argc, char *argv[])
     name_col_width = 4;
     while ((entry = readdir(dir)) != NULL) {
         if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+        chdir(base_dir);
+        if (chdir(entry->d_name) == -1)
+            continue;
+        if (stat("run", &st) == -1)
             continue;
         strncpy(services[nservices].name, entry->d_name, MAX_NAME-1);
         name_size = strlen(entry->d_name);
