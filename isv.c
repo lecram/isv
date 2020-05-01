@@ -68,6 +68,12 @@ restore_terminal(struct termios *term_prev)
     tcsetattr(0, TCSAFLUSH, term_prev);
 }
 
+int
+cmp_name(const void *a, const void *b)
+{
+    return strcmp(((struct service *) a)->name, ((struct service *) b)->name);
+}
+
 void
 load_services(const char *base_dir, int nservices)
 {
@@ -202,6 +208,7 @@ main(int argc, char *argv[])
         fprintf(stderr, "sorry, terminal too small\n");
         return 1;
     }
+    qsort(services, nservices, sizeof *services, cmp_name);
     setup_terminal(&term_prev);
     init_screen(nservices);
     running = 1;
