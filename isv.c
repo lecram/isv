@@ -117,14 +117,14 @@ format_uptime(unsigned long *value, char *suffix)
     if (*value >= 60) {
         *value /= 60;
         *suffix = 'm';
-    }
-    if (*value >= 60) {
-        *value /= 60;
-        *suffix = 'h';
-    }
-    if (*value >= 24) {
-        *value /= 24;
-        *suffix = 'd';
+        if (*value >= 60) {
+            *value /= 60;
+            *suffix = 'h';
+            if (*value >= 24) {
+                *value /= 24;
+                *suffix = 'd';
+            }
+        }
     }
 }
 
