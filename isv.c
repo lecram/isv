@@ -50,6 +50,25 @@ read_beu64(unsigned char *buf)
 }
 
 void
+setup_terminal(struct termios *term_prev)
+{
+    struct termios term_raw;
+
+    tcgetattr(0, term_prev);
+    term_raw = *term_prev;
+    term_raw.c_lflag &= ~(ECHO | ICANON);
+    term_raw.c_cc[VMIN] = 0x00;
+    term_raw.c_cc[VTIME] = 0x01; /* in deciseconds */
+    tcsetattr(0, TCSAFLUSH, &term_raw);
+}
+
+void
+restore_terminal(struct termios *term_prev)
+{
+    tcsetattr(0, TCSAFLUSH, term_prev);
+}
+
+void
 load_services(const char *base_dir, int nservices)
 {
     int i, fd;
@@ -142,7 +161,7 @@ main(int argc, char *argv[])
     int nservices;
     int name_size;
     struct winsize term_size;
-    struct termios term_prev, term_raw;
+    struct termios term_prev;
     char byte;
 
     if (!isatty(1))
@@ -180,12 +199,7 @@ main(int argc, char *argv[])
         fprintf(stderr, "sorry, terminal too small\n");
         return 1;
     }
-    tcgetattr(0, &term_prev);
-    term_raw = term_prev;
-    term_raw.c_lflag &= ~(ECHO | ICANON);
-    term_raw.c_cc[VMIN] = 0x00;
-    term_raw.c_cc[VTIME] = 0x01; /* in deciseconds */
-    tcsetattr(0, TCSAFLUSH, &term_raw);
+    setup_terminal(&term_prev);
     load_services(base_dir, nservices);
     show_services(nservices);
     while (1) {
@@ -194,6 +208,6 @@ main(int argc, char *argv[])
                 break;
         }
     }
-    tcsetattr(0, TCSAFLUSH, &term_prev);
+    restore_terminal(&term_prev);
     return 0;
 }
