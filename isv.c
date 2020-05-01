@@ -221,9 +221,11 @@ main(int argc, char *argv[])
             continue;
         if (stat("supervise/ok", &st) < 0)
             continue;
-        strncpy(services[nservices].name, entry->d_name, MAX_NAME-1);
         name_size = strlen(entry->d_name);
-        if (name_size > name_col_width && name_col_width < MAX_NAME)
+        if (name_size >= MAX_NAME)
+            continue;
+        strncpy(services[nservices].name, entry->d_name, name_size);
+        if (name_size > name_col_width)
             name_col_width = name_size;
         nservices++;
         if (nservices == MAX_SERV)
