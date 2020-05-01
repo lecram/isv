@@ -1,0 +1,70 @@
+isv - interactive service supervision
+=====================================
+
+This is a terminal user interface (TUI) for Runit service control.
+It should also be compatible with daemontools, but I haven't tested that.
+It's intended  to be a friendlier  version of Runit's sv  and daemontools' svc
+programs.
+
+
+Screenshot
+----------
+
+    $ isv
+     name   active  main   log uptime
+     cgit   no     21637 21636   12 m
+    <cron   yes      332   329    3 d>
+     rproxy yes      ---   330    ---
+
+On the screen above, we can see that:
+  - there are 3 services being currently supervised;
+  - the pid of underlying processes are shown in columns "main" & "log";
+  - service cgit is disabled (file "down" is present), but it's up;
+  - service cron has been up for 3 days;
+  - service rproxy is down;
+  - service cron is selected to receive control commands.
+
+
+Interaction
+-----------
+
+    KEY       ACTION
+    ---       ------
+    q         Quit isv
+    j/k       Move selection cursor down/up
+    <UPPER>   Send command to selected service (e.g. 'U' -> 'up')
+
+That is,  to control a  service, we  first move the  cursor (<>) using  j/k to
+select it, then we press SHIFT+x, where x is the first character of one of the
+commands supported by sv/svc:
+    up, down, once, pause, cont, hup, alarm, interrupt, quit, term, kill
+
+
+Installation
+------------
+
+This is just a single C source file with no external dependencies.
+Of course we need Runit/daemontools in order to actually use it.
+
+Do something like this to install:
+  $ cc -o isv isv.c
+  $ sudo mv isv /usr/bin/
+
+
+Services Directory
+------------------
+
+The base directory for service location can be specified in several ways:
+  - if an argument is passed to the isv(1) command, it's the base dir;
+  - otherwise, if the SVDIR environment variable is set, it's the base dir;
+  - otherwise, the base directory is /service/.
+
+Note: make sure the user running isv(1) has access to service directories.
+
+
+Copying
+-------
+
+All of the source  code and documentation for isv is  released into the public
+domain and provided without warranty of any kind.
+
