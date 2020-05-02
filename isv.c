@@ -207,7 +207,7 @@ main(int argc, char *argv[])
     DIR *dir;
     const char *base_dir = NULL;
     struct dirent *entry;
-    struct stat st;
+    int fd;
     int nservices, selection;
     int name_size;
     struct winsize term_size;
@@ -236,8 +236,10 @@ main(int argc, char *argv[])
         chdir(base_dir);
         if (chdir(entry->d_name) < 0)
             continue;
-        if (stat("supervise/ok", &st) < 0)
+        if ((fd = open("supervise/ok", O_WRONLY | O_NDELAY)) < 0)
             continue;
+        else
+            close(fd);
         name_size = strlen(entry->d_name);
         if (name_size >= MAX_NAME)
             continue;
