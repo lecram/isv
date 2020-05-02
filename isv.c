@@ -196,7 +196,7 @@ toggle_service(const char *base_dir, int nservices, int selection)
     chdir(base_dir);
     chdir(service->name);
     if (service->active)
-        creat("down", 0644);
+        close(creat("down", 0644));
     else
         unlink("down");
 }
