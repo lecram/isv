@@ -106,7 +106,7 @@ load_services(const char *base_dir, int nservices)
 void
 init_screen(int nservices)
 {
-    printf(" %-*s active  main   log uptime\n", name_col_width, "name");
+    printf(" %-*s active    main     log uptime\n", name_col_width, "name");
     while (nservices--) printf("\n");
 }
 
@@ -140,13 +140,13 @@ show_service(struct service *service, bool selected)
     printf("%c%-*s ", lsel, name_col_width, service->name);
     printf("%-6s ", service->active ? "yes" : "no");
     if (service->pid)
-        printf("%5d ", service->pid);
+        printf("%7d ", service->pid);
     else
-        printf("%5s ", "---");
+        printf("%7s ", "---");
     if (service->log_pid)
-        printf("%5d ", service->log_pid);
+        printf("%7d ", service->log_pid);
     else
-        printf("%5s ", "---");
+        printf("%7s ", "---");
     if (service->pid) {
         value = service->uptime;
         format_uptime(&value, &suffix);
@@ -256,7 +256,7 @@ main(int argc, char *argv[])
         return 1;
     }
     ioctl(0, TIOCGWINSZ, &term_size);
-    if (term_size.ws_col < (name_col_width + 28) || term_size.ws_row < (nservices + 3)) {
+    if (term_size.ws_col < (name_col_width + 32) || term_size.ws_row < (nservices + 3)) {
         fprintf(stderr, "sorry, terminal too small\n");
         return 1;
     }
